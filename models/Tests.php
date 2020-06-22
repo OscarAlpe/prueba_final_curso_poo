@@ -18,6 +18,9 @@ use Yii;
  */
 class Tests extends \yii\db\ActiveRecord
 {
+    public $fichero;
+    
+    
     /**
      * {@inheritdoc}
      */
@@ -33,6 +36,7 @@ class Tests extends \yii\db\ActiveRecord
     {
         return [
             [['fecha'], 'safe'],
+            [['fichero'], 'file'],
             [['descripcion', 'materia', 'titulo', 'titulo_impreso'], 'string', 'max' => 255],
         ];
     }
@@ -44,8 +48,8 @@ class Tests extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'descripcion' => 'Descripcion',
-            'materia' => 'Materia',
+            'descripcion' => 'Escribe una pequeña descripción del test',
+            'materia' => 'Indica el nombre del programa que es el test',
             'fecha' => 'Fecha',
             'titulo' => 'Titulo',
             'titulo_impreso' => 'Titulo Impreso',
