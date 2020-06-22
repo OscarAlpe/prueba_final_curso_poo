@@ -2,7 +2,7 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=localhost;dbname=proyectofinalpoo',
+    'dsn' => 'mysql:host=localhost;dbname=examenes_pdf',
     'username' => 'root',
     'password' => '',
     'charset' => 'utf8',
