@@ -121,7 +121,7 @@ class SiteController extends Controller
                   $modelPreguntas->insert();
                   $pregunta_id = Yii::$app->db->getLastInsertID();
                   
-                  if (isset($categorias) and is_array($categorias)) {
+                  if (isset($categorias)) {
                     $arrCategorias = explode(",", $categorias);
 
                     foreach ($arrCategorias as $c) {
