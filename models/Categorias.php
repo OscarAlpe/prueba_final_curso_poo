@@ -11,7 +11,6 @@ use Yii;
  * @property string|null $categoria
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
- * @property Preguntas[] $preguntas
  */
 class Categorias extends \yii\db\ActiveRecord
 {
@@ -30,6 +29,7 @@ class Categorias extends \yii\db\ActiveRecord
     {
         return [
             [['categoria'], 'string', 'max' => 255],
+            [['categoria'], 'unique'],
         ];
     }
 
@@ -52,15 +52,5 @@ class Categorias extends \yii\db\ActiveRecord
     public function getCategoriaspreguntas()
     {
         return $this->hasMany(Categoriaspregunta::className(), ['categoria_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Preguntas]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPreguntas()
-    {
-        return $this->hasMany(Preguntas::className(), ['id' => 'pregunta_id'])->viaTable('categoriaspregunta', ['categoria_id' => 'id']);
     }
 }

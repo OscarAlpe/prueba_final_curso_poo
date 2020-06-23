@@ -86,7 +86,11 @@ class SiteController extends Controller
 
                   if (strpos(strtolower($pregunta), " [[") !== false) {
                     $pregunta = substr($pregunta, 0, strpos($pregunta, " [["));
-                    $categorias = substr($pregunta, strpos($pregunta, "[[") + 2, strpos($pregunta, "]]") - 2);
+                  }
+
+                  if (strpos(strtolower($line), " [[") !== false) {
+                    $categorias = substr($line, strpos($line, "[[") + 2);
+                    $categorias = substr($categorias, 0, strpos($categorias, "]]"));
                   }
 
                   if (strpos(strtolower($pregunta), " {{") !== false) {
@@ -105,6 +109,25 @@ class SiteController extends Controller
                   $modelPreguntas->test_id = $test_id;
                   $modelPreguntas->insert();
                   $pregunta_id = Yii::$app->db->getLastInsertID();
+                  
+                  $arrCategorias = explode(",", $categorias);
+
+                  foreach ($arrCategorias as $c) {
+                    $selectCategorias = \app\models\Categorias::find()->where(['=', 'categoria', $c])->one();
+                    if (!$selectCategorias) {
+                      $modelCategorias = new \app\models\Categorias();
+                      $modelCategorias->categoria = $c;
+                      $modelCategorias->insert();
+                      $categoria_id = Yii::$app->db->getLastInsertID();
+                    } else {
+                      $categoria_id = $selectCategorias['id'];
+                    }
+                    
+                    $modelCategoriaspregunta = new \app\models\Categoriaspregunta();
+                    $modelCategoriaspregunta->categoria_id = $categoria_id;
+                    $modelCategoriaspregunta->pregunta_id = $pregunta_id;
+                    $modelCategoriaspregunta->insert();
+                  }
                 } else if (ctype_alpha($line[0])) {
                   $modelRespuestas = new \app\models\Respuestas();
                   $modelRespuestas->pregunta_id = $pregunta_id;

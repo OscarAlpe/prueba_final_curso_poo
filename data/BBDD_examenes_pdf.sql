@@ -40,7 +40,7 @@ COLLATE latin1_spanish_ci;
 
 CREATE TABLE categorias (
   id              INT PRIMARY KEY AUTO_INCREMENT,
-  categoria       VARCHAR(255) DEFAULT NULL
+  categoria       VARCHAR(255) UNIQUE
 )
 ENGINE = INNODB,
 CHARACTER SET latin1,
@@ -92,12 +92,6 @@ ALTER TABLE preguntas ADD FOREIGN KEY fk_test (test_id) REFERENCES tests(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE respuestas ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_categoria (categoria_id) REFERENCES categorias(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE categoriaspregunta ADD CONSTRAINT pk_pregunta_categoria UNIQUE KEY (pregunta_id, categoria_id);
