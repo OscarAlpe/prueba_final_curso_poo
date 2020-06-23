@@ -14,12 +14,11 @@ use Yii;
  * @property string|null $titulo
  * @property string|null $titulo_impreso
  *
- * @property Preguntastest[] $preguntastests
+ * @property Preguntas[] $preguntas
  */
 class Tests extends \yii\db\ActiveRecord
 {
     public $fichero;
-    
     
     /**
      * {@inheritdoc}
@@ -48,21 +47,22 @@ class Tests extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'descripcion' => 'Escribe una pequeña descripción del test',
-            'materia' => 'Indica el nombre del programa que es el test',
+            'descripcion' => 'Descripcion',
+            'materia' => 'Materia',
             'fecha' => 'Fecha',
             'titulo' => 'Titulo',
             'titulo_impreso' => 'Titulo Impreso',
+            'fichero' => 'Introduce el test a importar',
         ];
     }
 
     /**
-     * Gets query for [[Preguntastests]].
+     * Gets query for [[Preguntas]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getPreguntastests()
+    public function getPreguntas()
     {
-        return $this->hasMany(Preguntastest::className(), ['test_id' => 'id']);
+        return $this->hasMany(Preguntas::className(), ['test_id' => 'id']);
     }
 }

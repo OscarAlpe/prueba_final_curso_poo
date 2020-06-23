@@ -13,6 +13,7 @@ USE examenes_pdf;
 CREATE TABLE preguntas (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   pregunta        VARCHAR(255) DEFAULT NULL,
+  test_id         INT NOT NULL,
   imagen_id       INT DEFAULT NULL
 )
 ENGINE = INNODB,
@@ -31,7 +32,7 @@ CREATE TABLE respuestas (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   pregunta_id     INT NOT NULL,
   respuesta       VARCHAR(255) DEFAULT NULL,
-  correcta        BOOLEAN DEFAULT NULL
+  correcta        INT(1) DEFAULT 0
 )
 ENGINE = INNODB,
 CHARACTER SET latin1,
@@ -87,6 +88,12 @@ COLLATE latin1_spanish_ci;
 ALTER TABLE preguntas ADD FOREIGN KEY fk_imagen (imagen_id) REFERENCES imagenes(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
+ALTER TABLE preguntas ADD FOREIGN KEY fk_test (test_id) REFERENCES tests(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE respuestas ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
 ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -95,20 +102,9 @@ ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_categoria (categoria_id) REFER
 
 ALTER TABLE categoriaspregunta ADD CONSTRAINT pk_pregunta_categoria UNIQUE KEY (pregunta_id, categoria_id);
 
-ALTER TABLE preguntastest ADD FOREIGN KEY fk_test (test_id) REFERENCES tests(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE preguntastest ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
 ALTER TABLE preguntastest ADD CONSTRAINT pk_test_pregunta UNIQUE KEY (test_id, pregunta_id);
-
-ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuesta (respuesta_id) REFERENCES respuestas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE respuestaspregunta ADD CONSTRAINT pk_pregunta_respuesta UNIQUE KEY (pregunta_id, respuesta_id);
 
 --FIN
+

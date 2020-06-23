@@ -9,11 +9,13 @@ use Yii;
  *
  * @property int $id
  * @property string|null $pregunta
+ * @property int $test_id
  * @property int|null $imagen_id
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
  * @property Categorias[] $categorias
  * @property Imagenes $imagen
+ * @property Tests $test
  */
 class Preguntas extends \yii\db\ActiveRecord
 {
@@ -31,9 +33,11 @@ class Preguntas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['imagen_id'], 'integer'],
+            [['test_id'], 'required'],
+            [['test_id', 'imagen_id'], 'integer'],
             [['pregunta'], 'string', 'max' => 255],
             [['imagen_id'], 'exist', 'skipOnError' => true, 'targetClass' => Imagenes::className(), 'targetAttribute' => ['imagen_id' => 'id']],
+            [['test_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tests::className(), 'targetAttribute' => ['test_id' => 'id']],
         ];
     }
 
@@ -45,6 +49,7 @@ class Preguntas extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'pregunta' => 'Pregunta',
+            'test_id' => 'Test ID',
             'imagen_id' => 'Imagen ID',
         ];
     }
@@ -77,5 +82,15 @@ class Preguntas extends \yii\db\ActiveRecord
     public function getImagen()
     {
         return $this->hasOne(Imagenes::className(), ['id' => 'imagen_id']);
+    }
+
+    /**
+     * Gets query for [[Test]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTest()
+    {
+        return $this->hasOne(Tests::className(), ['id' => 'test_id']);
     }
 }

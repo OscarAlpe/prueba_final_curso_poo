@@ -65,41 +65,72 @@ class SiteController extends Controller
     
     public function actionImportar()
     {
-        $model = new \app\models\Tests();
-        if ($model->load(Yii::$app->request->post())) {
+        $modelTests = new \app\models\Tests();
+        if ($modelTests->load(Yii::$app->request->post())) {
             
             Yii::$app->session->setFlash('enviadoImportar');
             
-            $model->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
-            $model->insert();
-                      
-            $model->fichero = UploadedFile::getInstance($model, 'fichero');
-
-            $modelPreguntas = new \app\models\Preguntas();
-            $modelRespuestas = new \app\models\Respuestas();
+            $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
+            $modelTests->insert();
+            $test_id = Yii::$app->db->getLastInsertID();          
             
+            $modelTests->fichero = UploadedFile::getInstance($modelTests, 'fichero');
+         
             // Importar fichero
-            $handle = fopen($model->fichero->tempName, "r");
+            $handle = fopen($modelTests->fichero->tempName, "r");
             if ($handle) {
               while (($line = fgets($handle)) !== false) {
-                if (is_numeric($line[0])) {
-                  $modelPreguntas->pregunta = $line;
+                if (ctype_digit($line[0])) {
+                  $modelPreguntas = new \app\models\Preguntas();
+                  $pregunta = substr($line, strpos($line, " ") + 1);
+
+                  if (strpos(strtolower($pregunta), " [[") !== false) {
+                    $pregunta = substr($pregunta, 0, strpos($pregunta, " [["));
+                    $categorias = substr($pregunta, strpos($pregunta, "[[") + 2, strpos($pregunta, "]]") - 2);
+                  }
+
+                  if (strpos(strtolower($pregunta), " {{") !== false) {
+                    $pregunta = substr($pregunta, 0, strpos($pregunta, " {{"));
+                    $imagen_id = substr($pregunta, strpos($pregunta, "{{") + 2, strpos($pregunta, "}}"));
+                    $modelPreguntas->imagen_id = $imagen_id;
+                  }
+                  
+                  if (strpos(strtolower($line), " {{") !== false) {
+                    $imagen_id = substr($line, strpos($line, "{{") + 2,
+                                               strpos($line, "{{") + 2 - strpos($line, "}}") - 2);
+                    $modelPreguntas->imagen_id = $imagen_id;
+                  }
+                  
+                  $modelPreguntas->pregunta = utf8_encode($pregunta);
+                  $modelPreguntas->test_id = $test_id;
                   $modelPreguntas->insert();
-                } else if (is_alpha($line[0])) {
-                  $modelRespuestas->respuesta = $line;
+                  $pregunta_id = Yii::$app->db->getLastInsertID();
+                } else if (ctype_alpha($line[0])) {
+                  $modelRespuestas = new \app\models\Respuestas();
+                  $modelRespuestas->pregunta_id = $pregunta_id;
+                  $modelRespuestas->respuesta = utf8_encode(substr($line, 0, strpos($line, "\n") - 1));
+
+                  $modelRespuestas->correcta = 0;
+                  if (strpos(strtolower($line), "xxx") !== false) {
+                    $modelRespuestas->correcta = 1;
+                    $modelRespuestas->respuesta = utf8_encode(substr(strtolower($line), 0,
+                                                                strpos(strtolower($line), " xxx")));
+                  }
+
+                  $modelRespuestas->insert();
                 }
               }
 
               fclose($handle);
             } else {
-              echo "ERROR abriendo el fichero:" . $model->fichero;
+              echo "ERROR abriendo el fichero:" . $modelTests->fichero->tempName;
               exit();
             }
             
             return $this->refresh();
         }
       return $this->render('importar', [
-                    'model' => $model
+                    'model' => $modelTests
              ]);
     }
 }

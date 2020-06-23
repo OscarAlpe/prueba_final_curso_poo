@@ -8,11 +8,11 @@ use Yii;
  * This is the model class for table "respuestas".
  *
  * @property int $id
- * @property int|null $pregunta_id
+ * @property int $pregunta_id
  * @property string|null $respuesta
  * @property int|null $correcta
  *
- * @property Respuestaspregunta[] $respuestaspreguntas
+ * @property Preguntas $pregunta
  */
 class Respuestas extends \yii\db\ActiveRecord
 {
@@ -30,8 +30,10 @@ class Respuestas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['pregunta_id'], 'required'],
             [['pregunta_id', 'correcta'], 'integer'],
             [['respuesta'], 'string', 'max' => 255],
+            [['pregunta_id'], 'exist', 'skipOnError' => true, 'targetClass' => Preguntas::className(), 'targetAttribute' => ['pregunta_id' => 'id']],
         ];
     }
 
@@ -49,12 +51,12 @@ class Respuestas extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Respuestaspreguntas]].
+     * Gets query for [[Pregunta]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getRespuestaspreguntas()
+    public function getPregunta()
     {
-        return $this->hasMany(Respuestaspregunta::className(), ['respuesta_id' => 'id']);
+        return $this->hasOne(Preguntas::className(), ['id' => 'pregunta_id']);
     }
 }
