@@ -52,7 +52,7 @@ class Tests extends \yii\db\ActiveRecord
             'fecha' => 'Fecha',
             'titulo' => 'Titulo',
             'titulo_impreso' => 'Titulo Impreso',
-            'fichero' => 'Introduce el test a importar',
+            'fichero' => 'Selecciona el test a importar',
         ];
     }
 

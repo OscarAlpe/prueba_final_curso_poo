@@ -71,12 +71,11 @@ class SiteController extends Controller
             Yii::$app->session->setFlash('enviadoImportar');
             
             $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
-            $selectTests = \app\models\Tests::find()->
+            $numeroTests = \app\models\Tests::find()->
               where(['=', 'materia', $modelTests['materia']])->
-              orderBy('titulo')->
-              all();
-            $siguiente = sizeof($selectTests) + 1;
-            $modelTests->titulo = "Test de " . $modelTests->materia . " número " . $siguiente;
+              count();
+            
+            $modelTests->titulo = "Test de " . $modelTests->materia . " número " . ($numeroTests + 1);
             $modelTests->titulo_impreso = $modelTests->titulo;
             $modelTests->insert();
             $test_id = Yii::$app->db->getLastInsertID();          
