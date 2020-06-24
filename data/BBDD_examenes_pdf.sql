@@ -85,20 +85,41 @@ ENGINE = INNODB,
 CHARACTER SET latin1,
 COLLATE latin1_spanish_ci;
 
-ALTER TABLE preguntas ADD FOREIGN KEY fk_imagen (imagen_id) REFERENCES imagenes(id)
+ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_imagen (imagen_id) REFERENCES imagenes(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE preguntas ADD FOREIGN KEY fk_test (test_id) REFERENCES tests(id)
+ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_test (test_id) REFERENCES tests(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE respuestas ADD FOREIGN KEY fk_pregunta (pregunta_id) REFERENCES preguntas(id)
+ALTER TABLE respuestas ADD FOREIGN KEY fk_respuestas_pregunta (pregunta_id) REFERENCES preguntas(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE categoriaspregunta ADD CONSTRAINT pk_pregunta_categoria UNIQUE KEY (pregunta_id, categoria_id);
+ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_categoriaspregunta_pregunta (pregunta_id) REFERENCES preguntas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE preguntastest ADD CONSTRAINT pk_test_pregunta UNIQUE KEY (test_id, pregunta_id);
+ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_categoriaspregunta_categoria (categoria_id) REFERENCES categorias(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE respuestaspregunta ADD CONSTRAINT pk_pregunta_respuesta UNIQUE KEY (pregunta_id, respuesta_id);
+ALTER TABLE categoriaspregunta ADD CONSTRAINT pk_categoriaspregunta_pregunta_categoria
+  UNIQUE KEY (pregunta_id, categoria_id);
+
+ALTER TABLE preguntastest ADD FOREIGN KEY fk_preguntastest_test (test_id) REFERENCES tests(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE preguntastest ADD FOREIGN KEY fk_preguntastest_pregunta (pregunta_id) REFERENCES preguntas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE preguntastest ADD CONSTRAINT pk_preguntastest_test_pregunta
+  UNIQUE KEY (test_id, pregunta_id);
+
+ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuestaspregunta_pregunta (pregunta_id) REFERENCES preguntas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuestaspregunta_respuesta (respuesta_id) REFERENCES respuestas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE respuestaspregunta ADD CONSTRAINT pk_respuestaspregunta_pregunta_respuesta
+  UNIQUE KEY (pregunta_id, respuesta_id);
 
 --FIN
 

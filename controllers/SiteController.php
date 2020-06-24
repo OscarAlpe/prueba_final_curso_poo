@@ -67,21 +67,27 @@ class SiteController extends Controller
     {
         $modelTests = new \app\models\Tests();
         if ($modelTests->load(Yii::$app->request->post())) {
-            
+
             Yii::$app->session->setFlash('enviadoImportar');
             
             $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
             $numeroTests = \app\models\Tests::find()->
               where(['=', 'materia', $modelTests['materia']])->
               count();
-            
+
             $modelTests->titulo = "Test de " . $modelTests->materia . " número " . ($numeroTests + 1);
             $modelTests->titulo_impreso = $modelTests->titulo;
-            $modelTests->insert();
-            $test_id = Yii::$app->db->getLastInsertID();          
-            
             $modelTests->fichero = UploadedFile::getInstance($modelTests, 'fichero');
-         
+
+            if (!$modelTests->insert()) {
+              return $this->render('error', [
+                  'name' => 'ERROR al insertar Test',
+                  'message' => json_encode($modelTests->getErrors(), JSON_UNESCAPED_UNICODE)
+              ]);
+            }
+
+            $test_id = Yii::$app->db->getLastInsertID();
+
             // Importar fichero
             $handle = fopen($modelTests->fichero->tempName, "r");
             if ($handle) {
@@ -117,7 +123,14 @@ class SiteController extends Controller
                   
                   $modelPreguntas->pregunta = utf8_encode($pregunta);
                   $modelPreguntas->test_id = $test_id;
-                  $modelPreguntas->insert();
+
+                  if (!$modelPreguntas->insert()) {
+                    return $this->render('error', [
+                        'name' => 'ERROR al insertar Preguntas',
+                        'message' => json_encode($modelPreguntas->getErrors(), JSON_UNESCAPED_UNICODE)
+                    ]);
+                  }
+
                   $pregunta_id = Yii::$app->db->getLastInsertID();
                   
                   if (isset($categorias)) {
@@ -128,7 +141,14 @@ class SiteController extends Controller
                       if (!$selectCategorias) {
                         $modelCategorias = new \app\models\Categorias();
                         $modelCategorias->categoria = $c;
-                        $modelCategorias->insert();
+
+                        if (!$modelCategorias->insert()) {
+                          return $this->render('error', [
+                              'name' => 'ERROR al insertar Categorias',
+                              'message' => json_encode($modelCategorias->getErrors(), JSON_UNESCAPED_UNICODE)
+                          ]);
+                        }
+
                         $categoria_id = Yii::$app->db->getLastInsertID();
                       } else {
                         $categoria_id = $selectCategorias['id'];
@@ -137,7 +157,14 @@ class SiteController extends Controller
                       $modelCategoriaspregunta = new \app\models\Categoriaspregunta();
                       $modelCategoriaspregunta->categoria_id = $categoria_id;
                       $modelCategoriaspregunta->pregunta_id = $pregunta_id;
-                      $modelCategoriaspregunta->insert();
+
+                      if (!$modelCategoriaspregunta->insert()) {
+                        return $this->render('error', [
+                            'name' => 'ERROR al insertar Categoriaspregunta',
+                            'message' => json_encode($modelCategoriaspregunta->getErrors(), JSON_UNESCAPED_UNICODE)
+                        ]);
+                      }
+
                     }
                   }
                 } else if (ctype_alpha($line[0])) {
@@ -152,14 +179,22 @@ class SiteController extends Controller
                                                                 strpos(strtolower($line), " xxx")));
                   }
 
-                  $modelRespuestas->insert();
+                  if (!$modelRespuestas->insert()) {
+                    return $this->render('error', [
+                        'name' => 'ERROR al insertar Respuestas',
+                        'message' => json_encode($modelRespuestas->getErrors(), JSON_UNESCAPED_UNICODE)
+                    ]);
+                  }
+
                 }
               }
 
               fclose($handle);
             } else {
-              echo "ERROR abriendo el fichero:" . $modelTests->fichero->tempName;
-              exit();
+              return $this->render('error', [
+                  'name' => 'ERROR abriendo el fichero:',
+                  'message' => error_get_last()
+              ]);
             }
             
             return $this->refresh();

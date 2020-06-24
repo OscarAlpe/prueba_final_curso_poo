@@ -13,6 +13,8 @@ use Yii;
  * @property int|null $correcta
  *
  * @property Preguntas $pregunta
+ * @property Respuestaspregunta[] $respuestaspreguntas
+ * @property Preguntas[] $preguntas
  */
 class Respuestas extends \yii\db\ActiveRecord
 {
@@ -58,5 +60,25 @@ class Respuestas extends \yii\db\ActiveRecord
     public function getPregunta()
     {
         return $this->hasOne(Preguntas::className(), ['id' => 'pregunta_id']);
+    }
+
+    /**
+     * Gets query for [[Respuestaspreguntas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getRespuestaspreguntas()
+    {
+        return $this->hasMany(Respuestaspregunta::className(), ['respuesta_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Preguntas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPreguntas()
+    {
+        return $this->hasMany(Preguntas::className(), ['id' => 'pregunta_id'])->viaTable('respuestaspregunta', ['respuesta_id' => 'id']);
     }
 }
