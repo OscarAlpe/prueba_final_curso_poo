@@ -85,6 +85,16 @@ ENGINE = INNODB,
 CHARACTER SET latin1,
 COLLATE latin1_spanish_ci;
 
+CREATE TABLE categoriastest (
+  id              INT PRIMARY KEY AUTO_INCREMENT,
+  test_id         INT NOT NULL,
+  categoria_id    INT NOT NULL
+)
+ENGINE = INNODB,
+CHARACTER SET latin1,
+COLLATE latin1_spanish_ci;
+
+
 ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_imagen (imagen_id) REFERENCES imagenes(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -120,6 +130,15 @@ ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuestaspregunta_respuesta (
 
 ALTER TABLE respuestaspregunta ADD CONSTRAINT pk_respuestaspregunta_pregunta_respuesta
   UNIQUE KEY (pregunta_id, respuesta_id);
+
+ALTER TABLE categoriastest ADD FOREIGN KEY fk_categoriastest_test (test_id) REFERENCES tests(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE categoriastest ADD FOREIGN KEY fk_categoriastest_categoria (categoria_id) REFERENCES categorias(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE categoriastest ADD CONSTRAINT pk_categoriastest_test_categoria
+  UNIQUE KEY (test_id, categoria_id);
 
 --FIN
 
