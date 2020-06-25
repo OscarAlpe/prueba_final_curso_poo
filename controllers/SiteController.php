@@ -106,10 +106,11 @@ class SiteController extends Controller
                 $arrCategoriasTest = explode(",", $categoriasTest);
 
                 foreach ($arrCategoriasTest as $cTest) {
-                  $selectCategoriasTest = \app\models\Categorias::find()->where(['=', 'categoria', $cTest])->one();
+                  $selectCategoriasTest = \app\models\Categorias::find()->
+                    where(['=', 'categoria', utf8_encode($cTest)])->one();
                   if (!$selectCategoriasTest) {
                     $modelCategoriasT = new \app\models\Categorias();
-                    $modelCategoriasT->categoria = $cTest;
+                    $modelCategoriasT->categoria = utf8_encode($cTest);
 
                     if (!$modelCategoriasT->insert()) {
                       $transaction->rollBack();
@@ -184,10 +185,11 @@ class SiteController extends Controller
                   $arrCategorias = explode(",", $categorias);
 
                   foreach ($arrCategorias as $c) {
-                    $selectCategorias = \app\models\Categorias::find()->where(['=', 'categoria', $c])->one();
+                    $selectCategorias = \app\models\Categorias::find()->
+                      where(['=', 'categoria', utf8_encode($c)])->one();
                     if (!$selectCategorias) {
                       $modelCategorias = new \app\models\Categorias();
-                      $modelCategorias->categoria = $c;
+                      $modelCategorias->categoria = utf8_encode($c);
 
                       if (!$modelCategorias->insert()) {
                         return $this->render('error', [

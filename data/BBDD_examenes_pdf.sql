@@ -5,8 +5,8 @@ SET NAMES 'utf8';
 DROP DATABASE IF EXISTS examenes_pdf;
 
 CREATE DATABASE examenes_pdf
-  CHARACTER SET latin1
-	COLLATE latin1_spanish_ci;
+  CHARACTER SET utf8
+	COLLATE utf8_unicode_ci;
 
 USE examenes_pdf;
 
@@ -17,16 +17,16 @@ CREATE TABLE preguntas (
   imagen_id       INT DEFAULT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE imagenes (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   nombre          VARCHAR(255) DEFAULT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE respuestas (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -35,16 +35,16 @@ CREATE TABLE respuestas (
   correcta        INT(1) DEFAULT 0
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE categorias (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   categoria       VARCHAR(255) UNIQUE
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE tests (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -55,8 +55,8 @@ CREATE TABLE tests (
   titulo_impreso  VARCHAR(255) DEFAULT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE categoriaspregunta (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -64,8 +64,8 @@ CREATE TABLE categoriaspregunta (
   categoria_id    INT NOT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE preguntastest (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -73,8 +73,8 @@ CREATE TABLE preguntastest (
   pregunta_id     INT NOT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE respuestaspregunta (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -82,8 +82,8 @@ CREATE TABLE respuestaspregunta (
   respuesta_id    INT NOT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 CREATE TABLE categoriastest (
   id              INT PRIMARY KEY AUTO_INCREMENT,
@@ -91,8 +91,8 @@ CREATE TABLE categoriastest (
   categoria_id    INT NOT NULL
 )
 ENGINE = INNODB,
-CHARACTER SET latin1,
-COLLATE latin1_spanish_ci;
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 
 ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_imagen (imagen_id) REFERENCES imagenes(id)
