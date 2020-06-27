@@ -16,11 +16,7 @@ use Yii;
  * @property Categorias[] $categorias
  * @property Imagenes $imagen
  * @property Tests $test
- * @property Preguntastest[] $preguntastests
- * @property Tests[] $tests
  * @property Respuestas[] $respuestas
- * @property Respuestaspregunta[] $respuestaspreguntas
- * @property Respuestas[] $respuestas0
  */
 class Preguntas extends \yii\db\ActiveRecord
 {
@@ -100,26 +96,6 @@ class Preguntas extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Preguntastests]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getPreguntastests()
-    {
-        return $this->hasMany(Preguntastest::className(), ['pregunta_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Tests]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTests()
-    {
-        return $this->hasMany(Tests::className(), ['id' => 'test_id'])->viaTable('preguntastest', ['pregunta_id' => 'id']);
-    }
-
-    /**
      * Gets query for [[Respuestas]].
      *
      * @return \yii\db\ActiveQuery
@@ -127,25 +103,5 @@ class Preguntas extends \yii\db\ActiveRecord
     public function getRespuestas()
     {
         return $this->hasMany(Respuestas::className(), ['pregunta_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Respuestaspreguntas]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRespuestaspreguntas()
-    {
-        return $this->hasMany(Respuestaspregunta::className(), ['pregunta_id' => 'id']);
-    }
-
-    /**
-     * Gets query for [[Respuestas0]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getRespuestas0()
-    {
-        return $this->hasMany(Respuestas::className(), ['id' => 'respuesta_id'])->viaTable('respuestaspregunta', ['pregunta_id' => 'id']);
     }
 }

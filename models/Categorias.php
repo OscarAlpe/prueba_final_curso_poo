@@ -12,6 +12,8 @@ use Yii;
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
  * @property Preguntas[] $preguntas
+ * @property Categoriastest[] $categoriastests
+ * @property Tests[] $tests
  */
 class Categorias extends \yii\db\ActiveRecord
 {
@@ -63,5 +65,25 @@ class Categorias extends \yii\db\ActiveRecord
     public function getPreguntas()
     {
         return $this->hasMany(Preguntas::className(), ['id' => 'pregunta_id'])->viaTable('categoriaspregunta', ['categoria_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Categoriastests]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategoriastests()
+    {
+        return $this->hasMany(Categoriastest::className(), ['categoria_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Tests]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTests()
+    {
+        return $this->hasMany(Tests::className(), ['id' => 'test_id'])->viaTable('categoriastest', ['categoria_id' => 'id']);
     }
 }

@@ -4,7 +4,7 @@
 
 Use yii\helpers\Html;
 
-$this->title = 'My Yii Application';
+$this->title = 'Gestion de Test';
 ?>
 <div class="site-index">
 

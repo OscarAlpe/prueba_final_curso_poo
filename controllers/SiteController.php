@@ -9,6 +9,10 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use yii\web\UploadedFile;
 use yii\db\Transaction;
+use kartik\mpdf\Pdf;
+use app\models\Tests;
+use yii\helpers\ArrayHelper;
+use app\models\Categorias;
 
 class SiteController extends Controller
 {
@@ -220,13 +224,14 @@ class SiteController extends Controller
               } else if (ctype_alpha($line[0])) {
                 $modelRespuestas = new \app\models\Respuestas();
                 $modelRespuestas->pregunta_id = $pregunta_id;
-                $modelRespuestas->respuesta = utf8_encode(substr($line, 0, strpos($line, "\n") - 1));
+                $respuesta = substr($line, strpos($line, " ") + 1);
+                $modelRespuestas->respuesta = utf8_encode(substr($respuesta, 0, strpos($respuesta, "\n") - 1));
 
                 $modelRespuestas->correcta = 0;
-                if (strpos(strtolower($line), "xxx") !== false) {
+                if (strpos(strtolower($respuesta), "xxx") !== false) {
                   $modelRespuestas->correcta = 1;
-                  $modelRespuestas->respuesta = utf8_encode(substr(strtolower($line), 0,
-                                                            strpos(strtolower($line), " xxx")));
+                  $modelRespuestas->respuesta = utf8_encode(substr(strtolower($respuesta), 0,
+                                                            strpos(strtolower($respuesta), " xxx")));
                 }
 
                 if (!$modelRespuestas->insert()) {
@@ -264,4 +269,68 @@ class SiteController extends Controller
                     'model' => $modelTests
              ]);
     }
+
+    public function actionGenerardirectamente() {
+        // get your HTML raw content without any layouts or scripts
+        $numero = 1;
+        $test = $numero;
+        $t = Tests::findOne(['id'=>$test]);
+        $p = $t->getPreguntas()->all();
+
+        // consulta directa
+        $consulta="SELECT c.categoria, COUNT(*) as numero FROM preguntas p
+                     JOIN categoriaspregunta cp ON p.id = cp.pregunta_id
+                     JOIN categorias c ON cp.categoria_id = c.id WHERE p.test_id=$numero
+                     GROUP BY cp.categoria_id ORDER BY c.categoria";
+        $contadorCategorias=Yii::$app->db->createCommand($consulta)->queryAll();
+
+        $content = $this->renderPartial('crearPdf',[
+//return $this->render('crearPdf',[
+            'p'=>$p, // pasando preguntas
+            't'=>$t, // pasando el test
+            'n'=>ArrayHelper::index($contadorCategorias,'categoria'), // numero de preguntas por categoria
+        ]);
+
+        // setup kartik\mpdf\Pdf component
+        $pdf = new Pdf([
+            // set to use core fonts only
+            'mode' => Pdf::MODE_CORE,
+            // A4 paper format
+            'format' => Pdf::FORMAT_A4,
+            'marginTop' => 30,
+            // portrait orientation
+            'orientation' => Pdf::ORIENT_PORTRAIT,
+            // stream to browser inline
+            'destination' => Pdf::DEST_BROWSER,
+            //'filename'=>Yii::getAlias('@app') . '/file/pdf/test.pdf',
+            //'destination' => Pdf::DEST_FILE,
+            // your html content input
+            'content' => $content,
+            // format content from your own css file if needed or use the
+            // enhanced bootstrap css built by Krajee for mPDF formatting
+            // '@vendor/kartik-v/yii2-mpdf/src/assets/kv-mpdf-bootstrap.min.css'
+            'cssFile' => ['@app/web/css/kv-mpdf-bootstrap.css','@app/web/css/site.css'],
+            //'cssFile' => '@app/web/css
+            ///site.css',
+            // any css to be embedded if required
+            'cssInline' => '.kv-heading-1{font-size:18px}',
+            // set mPDF properties on the fly
+            'options' => [
+                'title' => 'Alpe Formacion',
+                'showWatermarkImage'=>true,
+                //'defaultheaderfontsize'=>9,
+            ],
+            // call mPDF methods on the fly
+            'methods' => [
+                'SetHeader'=>[' | ' . $t->titulo_impreso . ' | por Oscar Megía López'],
+                'SetFooter'=>[strtoupper($t->materia) . ' | Alpe Formacion | Pagina {PAGENO}'],
+                'SetWatermarkImage'=>[Yii::getAlias('@web') . '/imgs/alpe.png',1,[34,38],[10,0]],
+
+            ]
+        ]);
+
+        return $pdf->render();
+
+      }
+
 }

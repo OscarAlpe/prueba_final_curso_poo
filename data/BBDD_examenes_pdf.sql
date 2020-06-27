@@ -67,24 +67,6 @@ ENGINE = INNODB,
 CHARACTER SET utf8,
 COLLATE utf8_unicode_ci;
 
-CREATE TABLE preguntastest (
-  id              INT PRIMARY KEY AUTO_INCREMENT,
-  test_id         INT NOT NULL,
-  pregunta_id     INT NOT NULL
-)
-ENGINE = INNODB,
-CHARACTER SET utf8,
-COLLATE utf8_unicode_ci;
-
-CREATE TABLE respuestaspregunta (
-  id              INT PRIMARY KEY AUTO_INCREMENT,
-  pregunta_id     INT NOT NULL,
-  respuesta_id    INT NOT NULL
-)
-ENGINE = INNODB,
-CHARACTER SET utf8,
-COLLATE utf8_unicode_ci;
-
 CREATE TABLE categoriastest (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   test_id         INT NOT NULL,
@@ -112,24 +94,6 @@ ALTER TABLE categoriaspregunta ADD FOREIGN KEY fk_categoriaspregunta_categoria (
 
 ALTER TABLE categoriaspregunta ADD CONSTRAINT pk_categoriaspregunta_pregunta_categoria
   UNIQUE KEY (pregunta_id, categoria_id);
-
-ALTER TABLE preguntastest ADD FOREIGN KEY fk_preguntastest_test (test_id) REFERENCES tests(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE preguntastest ADD FOREIGN KEY fk_preguntastest_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE preguntastest ADD CONSTRAINT pk_preguntastest_test_pregunta
-  UNIQUE KEY (test_id, pregunta_id);
-
-ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuestaspregunta_pregunta (pregunta_id) REFERENCES preguntas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE respuestaspregunta ADD FOREIGN KEY fk_respuestaspregunta_respuesta (respuesta_id) REFERENCES respuestas(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE respuestaspregunta ADD CONSTRAINT pk_respuestaspregunta_pregunta_respuesta
-  UNIQUE KEY (pregunta_id, respuesta_id);
 
 ALTER TABLE categoriastest ADD FOREIGN KEY fk_categoriastest_test (test_id) REFERENCES tests(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
