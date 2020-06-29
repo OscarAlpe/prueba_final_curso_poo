@@ -31,7 +31,7 @@ $this->title = 'Gestion de Test';
 
                 <p>Esta opcion os permite crear un test en formato PDF indicando unicamente el numero de test</p>
 
-                <p><?= Html::a('Generar test', ['/site/generardirectamente'], ['class'=>'btn btn-primary']) ?></p>
+                <p><?= Html::a('Generar test', ['/test'], ['class'=>'btn btn-primary']) ?></p>
             </div>
             <div class="col-lg-4">
                 <h2>Generar un test por categoria</h2>

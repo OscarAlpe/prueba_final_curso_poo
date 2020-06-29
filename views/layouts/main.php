@@ -40,7 +40,7 @@ AppAsset::register($this);
         'items' => [
             ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'Importar', 'url' => ['/site/importar']],
-            ['label' => 'Generar test directamente', 'url' => ['/site/generardirectamente']],
+            ['label' => 'Generar test directamente', 'url' => ['/test']],
             ['label' => 'Generar test por categoría', 'url' => ['/site/generarcategoria']],
         ],
     ]);

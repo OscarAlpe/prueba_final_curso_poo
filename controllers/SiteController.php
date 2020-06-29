@@ -270,9 +270,9 @@ class SiteController extends Controller
              ]);
     }
 
-    public function actionGenerardirectamente() {
+    public function actionGenerardirectamente($numero) {
         // get your HTML raw content without any layouts or scripts
-        $numero = 1;
+        //$numero = 1;
         $test = $numero;
         $t = Tests::findOne(['id'=>$test]);
         $p = $t->getPreguntas()->all();
