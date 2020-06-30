@@ -33,7 +33,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'titulo',
             //'titulo_impreso',
 
-            [ 'class' => 'yii\grid\ActionColumn',
+            [
+              'class' => 'yii\grid\ActionColumn',
               'template' => '{view}{update}{delete}{generar}',
               'buttons' => [ 'generar' => function ($url, $model) {
                  return Html::a('<span class="glyphicon glyphicon-print"></span>',

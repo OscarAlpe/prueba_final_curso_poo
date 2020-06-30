@@ -333,4 +333,69 @@ class SiteController extends Controller
 
       }
 
+    public function actionGenerarcategoria() {
+      $modelTests = new \app\models\Tests();
+
+      $modelPreguntasArraySoloCampos = [];
+
+      $modelCategoriasArray = \app\models\Categorias::find()
+        ->distinct()
+        ->select(["categorias.id", "categorias.categoria"])
+        ->rightjoin("categoriaspregunta", "categorias.id = categoriaspregunta.categoria_id")
+        ->asArray()
+        ->all();
+
+      $modelCategoriasArraySoloCampos = ArrayHelper::map($modelCategoriasArray, 'id', 'categoria');
+
+      if (Yii::$app->request->isPost) {
+        $formData = Yii::$app->request->post();
+        $modelTests->load($formData);
+
+        if (isset($formData["generar-button"])) {
+
+          $connection = \Yii::$app->db;
+          $transaction = $connection->beginTransaction();
+
+          try {
+            Yii::$app->session->setFlash('enviadoGenerarCategoria');
+
+            // Generar el test
+
+            $transaction->commit();
+          } catch (\Exception $e) {
+            $transaction->rollBack();
+            throw $e;
+          } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+          }
+
+        } else if (isset($formData["previsualizar-button"])) {
+          $modelPreguntasArray = \app\models\Preguntas::find()
+            ->distinct()
+            ->select(["preguntas.id", "preguntas.pregunta"])
+            ->innerjoin("categoriaspregunta", "preguntas.id = categoriaspregunta.pregunta_id")
+            ->asArray()
+            ->where(["IN", "categoriaspregunta.categoria_id", $formData["Tests"]["categoria"]])
+            ->all();
+          $modelPreguntasArraySoloCampos = ArrayHelper::map($modelPreguntasArray, 'id', 'pregunta');
+
+          return $this->render("generarCategoria", [
+            'modelTests' => $modelTests,
+            'modelCategoriasArraySoloCampos' => $modelCategoriasArraySoloCampos,
+            'modelPreguntasArraySoloCampos' => $modelPreguntasArraySoloCampos,
+          ]);
+        }
+
+
+        return $this->refresh();
+      }
+
+      return $this->render("generarCategoria", [
+        'modelTests' => $modelTests,
+        'modelCategoriasArraySoloCampos' => $modelCategoriasArraySoloCampos,
+        'modelPreguntasArraySoloCampos' => $modelPreguntasArraySoloCampos,
+      ]);
+    }
+
 }

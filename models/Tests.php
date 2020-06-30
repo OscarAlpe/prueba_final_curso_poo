@@ -21,6 +21,9 @@ use Yii;
 class Tests extends \yii\db\ActiveRecord
 {
     public $fichero;
+    public $npreguntas;
+    public $categoria;
+    public $pregunta;
     
     /**
      * {@inheritdoc}
@@ -38,7 +41,10 @@ class Tests extends \yii\db\ActiveRecord
         return [
             [['fecha'], 'safe'],
             [['fichero'], 'file', 'skipOnEmpty' => false],
-            [['descripcion', 'materia'], 'required'],
+            [['descripcion', 'materia', 'npreguntas'], 'required'],
+            [['npreguntas'], 'number'],
+            [['categoria[]'], 'boolean'],
+            [['pregunta[]'], 'boolean'],
             [['descripcion', 'materia', 'titulo', 'titulo_impreso'], 'string', 'max' => 255],
         ];
     }
@@ -51,11 +57,14 @@ class Tests extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'descripcion' => 'Descripcion',
-            'materia' => 'Materia',
+            'materia' => 'Indica el nombre del programa del que es el test',
             'fecha' => 'Fecha',
             'titulo' => 'Titulo',
             'titulo_impreso' => 'Titulo Impreso',
             'fichero' => 'Selecciona el test a importar',
+            'npreguntas' => 'Indica cuantas preguntas quieres que tenga el test como máximo',
+            'categoria' => 'Categorias',
+            'pregunta' => 'Listado Preguntas',
         ];
     }
 

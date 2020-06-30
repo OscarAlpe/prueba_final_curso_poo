@@ -113,3 +113,62 @@ a.desc:after {
 .nav > li > form > button.logout:focus {
     outline: none;
 }
+
+    .pdfSalida div.test1 ol li{
+        line-height: 1.5em !important;
+        font-size: 1em !important;
+        font-family: "Bodoni MT" !important;
+    }
+
+    .pdfSalida .test1 ol li {
+        margin-top: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .tablas {
+        border: 1px solid black;
+        width: 65%;
+        margin: 0px auto;
+        border-collapse: collapse;
+    }
+
+    .tablas td {
+        border: 1px solid black;
+        width: 16.66%;
+        padding: 5px;
+    }
+
+    .tablas tr:nth-child(even) {
+        background-color: gray;
+
+    }
+
+    .cabecera {
+        width: 15%;
+    }
+
+    .alto1 {
+        height: 100px;
+    }
+
+    #creartest-listadopreguntas .form-control{
+        height:auto;
+    }
+
+    #creartest-listadopreguntas .form-control img{
+        display:block;
+    }
+
+    #creartest-categorias,
+    #uploadform-categorias{
+        margin-top:30px;
+        column-count: 5;
+        margin-bottom: 30px;
+    }
+
+.carousel-caption>div{
+    color:black;
+    background-color: rgba(255,255,255,0.7);
+    border-radius: 10px;
+    padding:25px;
+}
