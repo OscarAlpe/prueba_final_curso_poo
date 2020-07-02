@@ -23,7 +23,7 @@ use yii\helpers\Html;
           
           <?= $form->field($model, 'materia') ?>
 
-          <?= $form->field($model, 'fichero')->fileInput() ?>
+          <?= $form->field($model, 'fichero')->fileInput(['skipOnEmpty' => false]) ?>
           
           <div class="form-group">
               <?= Html::submitButton('Importar preguntas',

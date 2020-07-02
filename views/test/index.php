@@ -39,7 +39,8 @@ $this->params['breadcrumbs'][] = $this->title;
               'buttons' => [ 'generar' => function ($url, $model) {
                  return Html::a('<span class="glyphicon glyphicon-print"></span>',
                                  [
-                                   'site/generardirectamente','numero'=>$model->id] ); },
+                                   'site/generardirectamente', 'numero' => $model->id],
+                                   ['target' => '_blank'] ); },
                                  ]
             ], 
         ],

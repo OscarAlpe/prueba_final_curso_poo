@@ -16,15 +16,16 @@ use Yii;
  *
  * @property Categoriastest[] $categoriastests
  * @property Categorias[] $categorias
+ * @property Testspreguntas[] $testspreguntas
  * @property Preguntas[] $preguntas
  */
 class Tests extends \yii\db\ActiveRecord
 {
     public $fichero;
     public $npreguntas;
-    public $categoria;
-    public $pregunta;
-    
+    public $categorias = [];
+    public $preguntas = [];
+
     /**
      * {@inheritdoc}
      */
@@ -38,13 +39,22 @@ class Tests extends \yii\db\ActiveRecord
      */
     public function rules()
     {
+        $f = "";
+        $required = "";
+
+        if (Yii::$app->controller->action->id == "importar") {
+          $f = [['fichero'], 'file', 'skipOnEmpty' => false];
+          $required = [['descripcion', 'materia'], 'required'];
+        } else {
+          $f = [['fichero'], 'file', 'skipOnEmpty' => true];
+          $required = [['descripcion', 'materia', 'npreguntas'], 'required'];
+        }
+
         return [
             [['fecha'], 'safe'],
-            [['fichero'], 'file', 'skipOnEmpty' => false],
-            [['descripcion', 'materia', 'npreguntas'], 'required'],
+            $f,
+            $required,
             [['npreguntas'], 'number'],
-            [['categoria[]'], 'boolean'],
-            [['pregunta[]'], 'boolean'],
             [['descripcion', 'materia', 'titulo', 'titulo_impreso'], 'string', 'max' => 255],
         ];
     }
@@ -57,14 +67,14 @@ class Tests extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'descripcion' => 'Descripcion',
-            'materia' => 'Indica el nombre del programa del que es el test',
+            'materia' => 'Materia',
             'fecha' => 'Fecha',
             'titulo' => 'Titulo',
             'titulo_impreso' => 'Titulo Impreso',
             'fichero' => 'Selecciona el test a importar',
             'npreguntas' => 'Indica cuantas preguntas quieres que tenga el test como máximo',
-            'categoria' => 'Categorias',
-            'pregunta' => 'Listado Preguntas',
+            'categorias' => 'Categorias',
+            'preguntas' => 'Listado Preguntas',
         ];
     }
 
@@ -89,12 +99,22 @@ class Tests extends \yii\db\ActiveRecord
     }
 
     /**
+     * Gets query for [[Testspreguntas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTestspreguntas()
+    {
+        return $this->hasMany(Testspreguntas::className(), ['test_id' => 'id']);
+    }
+
+    /**
      * Gets query for [[Preguntas]].
      *
      * @return \yii\db\ActiveQuery
      */
     public function getPreguntas()
     {
-        return $this->hasMany(Preguntas::className(), ['test_id' => 'id']);
+        return $this->hasMany(Preguntas::className(), ['id' => 'pregunta_id'])->viaTable('testspreguntas', ['test_id' => 'id']);
     }
 }

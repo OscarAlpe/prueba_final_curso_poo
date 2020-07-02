@@ -13,7 +13,7 @@ $this->title = 'Gestion de Test';
 
         <p class="lead">Podemos crear test de forma automatica y de forma manual</p>
 
-        <p><?= Html::a('Instrucciones', ['/site/instrucciones'], ['class'=>'btn btn-primary']) ?></p>
+        <p><?= Html::a('Instrucciones', ['/site/ayuda'], ['class'=>'btn btn-primary']) ?></p>
     </div>
 
     <div class="body-content">

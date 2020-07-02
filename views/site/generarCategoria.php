@@ -5,6 +5,23 @@ use yii\grid\GridView;
 use yii\grid\CheckboxColumn;
 use yii\widgets\ListView;
 use yii\helpers\ArrayHelper;
+use yii\web\View;
+?>
+
+<?php
+
+if (isset($numero)) {
+//No funciona el título
+echo "<script>
+        window.onload = function openInNewTab() {
+          var win = window.open('generardirectamente?numero=' + " . $numero . ", '_blank');
+          win.focus();
+          win.document.title = '" . $titulo . "';
+        }
+      </script>";
+
+}
+
 ?>
 
 <div class="row">
@@ -23,7 +40,7 @@ use yii\helpers\ArrayHelper;
 
       <?php $form = ActiveForm::begin(['id' => 'importar-form']); ?>
 
-          <?= $form->field($modelTests, 'npreguntas')->input(['autofocus' => true]) ?>
+          <?= $form->field($modelTests, 'npreguntas') ?>
           
           <?= $form->field($modelTests, 'descripcion')->textarea(['rows' => 6]) ?>
           
@@ -36,11 +53,35 @@ use yii\helpers\ArrayHelper;
                ['class' => 'btn btn-primary', 'name' => 'generar-button', 'onclick' => 'ocultarGenerado()']) ?>
           </div>
 
-          <?php echo $form->field($modelTests, 'categoria[]')
-              ->checkboxList( $modelCategoriasArraySoloCampos ); ?>
+          <?= $form->field($modelTests, 'categorias[]')->checkboxList($modelCategoriasArraySoloCampos) ?>
 
-          <?php echo $form->field($modelTests, 'pregunta[]')
-              ->checkboxList( $modelPreguntasArraySoloCampos ); ?>
+<?php
+echo Html::checkbox(null, false, [
+    'label' => 'Activar/desactivar todas las preguntas',
+    'class' => 'check-all',
+]);
+?>
+          <?= $form->field($modelTests, 'preguntas[]')->checkboxList($modelPreguntasArraySoloCampos,
+                [
+                  'item' => function ($index, $label, $name, $checked, $value) {
+                              $ret = '  <div class="col-lg-12">';
+                              $ret .= '    <div class="input-group" style="margin-top: 10px;" >';
+                              $ret .= '      <span class="input-group-addon" style="text-align: left;">';
+                              $ret .= '        <input type="checkbox" name="Tests[preguntas][]" value="' . $value . '" ">';
+                              $ret .= '        <label style="margin: 20px;">' . $label["pregunta"] . '</label>';
+                              if ($label["nombre"] !== NULL) {
+                                $ret .= '        <div>';
+                                $ret .= '          <img src="' . \Yii::getAlias('@web') .
+                                                     '/imgs/pdf/' . $label["nombre"] . '" >';
+                                $ret .= '        </div>';
+                              }
+                              $ret .= '      </span>';
+                              $ret .= '    </div><!-- /input-group -->';
+                              $ret .= '  </div><!-- /.col-lg-6 -->';
+
+                              return $ret;
+                            },
+                  'separator' => '<hr>']) ?>
 
           <?php ActiveForm::end(); ?>
 
@@ -54,3 +95,16 @@ use yii\helpers\ArrayHelper;
     x.style.display = "none";
   }
 </script>
+
+<?php
+  $script = <<< JS
+    $('.check-all').click(function() {
+      var selector = $(this).is(':checked') ? ':not(:checked)' : ':checked';
+      $('#tests-preguntas input[type="checkbox"]' + selector).each(function() {
+        $(this).trigger('click');
+      });
+    });
+JS;
+
+  $this->registerJs($script, View::POS_END);
+?>

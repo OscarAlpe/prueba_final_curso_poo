@@ -4,8 +4,10 @@
 
 use yii\helpers\Html;
 
+
 $this->title = $t->titulo;
 ?>
+
 <div style="margin-top:50px;"> </div>
 <div class="site-about pdfSalida">
     <div class="row">

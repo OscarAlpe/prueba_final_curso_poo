@@ -80,6 +80,7 @@ class SiteController extends Controller
         try {
           Yii::$app->session->setFlash('enviadoImportar');
 
+          // Crear Test
           $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
           $numeroTests = \app\models\Tests::find()->
             where(['=', 'materia', $modelTests['materia']])->
@@ -143,6 +144,7 @@ class SiteController extends Controller
                 }
               }
 
+              // Crear preguntas
               if (ctype_digit($line[0])) {
                 $modelPreguntas = new \app\models\Preguntas();
                 $pregunta = substr($line, strpos($line, " ") + 1);
@@ -173,7 +175,6 @@ class SiteController extends Controller
                 }
 
                 $modelPreguntas->pregunta = utf8_encode($pregunta);
-                $modelPreguntas->test_id = $test_id;
 
                 if (!$modelPreguntas->insert()) {
                   $transaction->rollBack();
@@ -185,6 +186,7 @@ class SiteController extends Controller
 
                 $pregunta_id = Yii::$app->db->getLastInsertID();
 
+                // Crear categorías
                 if (isset($categorias)) {
                   $arrCategorias = explode(",", $categorias);
 
@@ -218,9 +220,21 @@ class SiteController extends Controller
                           'message' => json_encode($modelCategoriaspregunta->getErrors(), JSON_UNESCAPED_UNICODE)
                       ]);
                     }
-
                   }
                 }
+
+                // Insertar relación en testspreguntas
+                $modelTestsPreguntas = new \app\models\Testspreguntas();
+                $modelTestsPreguntas->test_id = $test_id;
+                $modelTestsPreguntas->pregunta_id = $pregunta_id;
+                if (!$modelTestsPreguntas->insert()) {
+                  $transaction->rollBack();
+                  return $this->render('error', [
+                      'name' => 'ERROR al insertar TestsPreguntas',
+                      'message' => json_encode($modelTestsPreguntas->getErrors(), JSON_UNESCAPED_UNICODE)
+                  ]);
+                }
+              // Crear respuestas
               } else if (ctype_alpha($line[0])) {
                 $modelRespuestas = new \app\models\Respuestas();
                 $modelRespuestas->pregunta_id = $pregunta_id;
@@ -271,21 +285,20 @@ class SiteController extends Controller
     }
 
     public function actionGenerardirectamente($numero) {
-        // get your HTML raw content without any layouts or scripts
-        //$numero = 1;
         $test = $numero;
         $t = Tests::findOne(['id'=>$test]);
         $p = $t->getPreguntas()->all();
 
         // consulta directa
         $consulta="SELECT c.categoria, COUNT(*) as numero FROM preguntas p
+                     JOIN testspreguntas tp ON p.id = tp.pregunta_id
                      JOIN categoriaspregunta cp ON p.id = cp.pregunta_id
-                     JOIN categorias c ON cp.categoria_id = c.id WHERE p.test_id=$numero
+                     JOIN categorias c ON cp.categoria_id = c.id WHERE tp.test_id=$numero
                      GROUP BY cp.categoria_id ORDER BY c.categoria";
         $contadorCategorias=Yii::$app->db->createCommand($consulta)->queryAll();
 
+        // get your HTML raw content without any layouts or scripts
         $content = $this->renderPartial('crearPdf',[
-//return $this->render('crearPdf',[
             'p'=>$p, // pasando preguntas
             't'=>$t, // pasando el test
             'n'=>ArrayHelper::index($contadorCategorias,'categoria'), // numero de preguntas por categoria
@@ -359,9 +372,68 @@ class SiteController extends Controller
           try {
             Yii::$app->session->setFlash('enviadoGenerarCategoria');
 
-            // Generar el test
+            // Inserta el test
+            $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
+            $numeroTests = \app\models\Tests::find()->
+              where(['=', 'materia', $modelTests['materia']])->
+              count();
+
+            $modelTests->titulo = "Test de " . $modelTests->materia . " número " . ($numeroTests + 1);
+            $modelTests->titulo_impreso = $modelTests->titulo;
+            $titulo = $modelTests->titulo;;
+
+            if (!$modelTests->insert()) {
+              $transaction->rollBack();
+              return $this->render('error', [
+                  'name' => 'ERROR al insertar Test',
+                  'message' => json_encode($modelTests->getErrors(), JSON_UNESCAPED_UNICODE)
+              ]);
+            }
+
+            $test_id = Yii::$app->db->getLastInsertID();
+
+            // Comprueba que se hayan seleccionado preguntas
+            if (!isset($formData["Tests"]["preguntas"]) || ($formData["Tests"]["preguntas"] == "")) {
+              $transaction->rollBack();
+              return $this->render('error', [
+                  'name' => 'ERROR',
+                  'message' => 'No se ha seleccionado ninguna pregunta para poder generar el test'
+              ]);
+            }
+
+            $numeroPreguntasGrabadas = 0;
+
+            // Inserta las preguntas
+            foreach ($formData["Tests"]["preguntas"] as $v) {
+              $modelTestsPreguntas = new \app\models\Testspreguntas();
+              $modelTestsPreguntas->test_id = $test_id;
+              $modelTestsPreguntas->pregunta_id = $v;
+
+              if (!$modelTestsPreguntas->insert()) {
+                $transaction->rollBack();
+                return $this->render('error', [
+                    'name' => 'ERROR al insertar Testspreguntas',
+                    'message' => json_encode($modelPreguntasNew->getErrors(), JSON_UNESCAPED_UNICODE)
+                ]);
+              }
+
+              $numeroPreguntasGrabadas++;
+
+              if ($numeroPreguntasGrabadas >= $formData["Tests"]["npreguntas"]) {
+                break;
+              }
+            }
 
             $transaction->commit();
+
+            return $this->render("generarCategoria", [
+              'modelTests' => $modelTests,
+              'modelCategoriasArraySoloCampos' => $modelCategoriasArraySoloCampos,
+              'modelPreguntasArraySoloCampos' => $modelPreguntasArraySoloCampos,
+              'numero' => $test_id,
+              'titulo' => $titulo,
+            ]);
+
           } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
@@ -373,12 +445,13 @@ class SiteController extends Controller
         } else if (isset($formData["previsualizar-button"])) {
           $modelPreguntasArray = \app\models\Preguntas::find()
             ->distinct()
-            ->select(["preguntas.id", "preguntas.pregunta"])
+            ->select(["preguntas.id", "preguntas.pregunta", "imagenes.nombre"])
+            ->leftjoin("imagenes", "preguntas.imagen_id = imagenes.id")
             ->innerjoin("categoriaspregunta", "preguntas.id = categoriaspregunta.pregunta_id")
             ->asArray()
-            ->where(["IN", "categoriaspregunta.categoria_id", $formData["Tests"]["categoria"]])
+            ->where(["IN", "categoriaspregunta.categoria_id", $formData["Tests"]["categorias"]])
             ->all();
-          $modelPreguntasArraySoloCampos = ArrayHelper::map($modelPreguntasArray, 'id', 'pregunta');
+          $modelPreguntasArraySoloCampos = ArrayHelper::index($modelPreguntasArray, 'id');
 
           return $this->render("generarCategoria", [
             'modelTests' => $modelTests,
@@ -386,7 +459,6 @@ class SiteController extends Controller
             'modelPreguntasArraySoloCampos' => $modelPreguntasArraySoloCampos,
           ]);
         }
-
 
         return $this->refresh();
       }
@@ -398,4 +470,7 @@ class SiteController extends Controller
       ]);
     }
 
+  public function actionAyuda() {
+    return $this->render("ayuda");
+  }
 }

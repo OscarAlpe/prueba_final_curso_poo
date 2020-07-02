@@ -9,14 +9,14 @@ use Yii;
  *
  * @property int $id
  * @property string|null $pregunta
- * @property int $test_id
  * @property int|null $imagen_id
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
  * @property Categorias[] $categorias
  * @property Imagenes $imagen
- * @property Tests $test
  * @property Respuestas[] $respuestas
+ * @property Testspreguntas[] $testspreguntas
+ * @property Tests[] $tests
  */
 class Preguntas extends \yii\db\ActiveRecord
 {
@@ -34,11 +34,9 @@ class Preguntas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['test_id'], 'required'],
-            [['test_id', 'imagen_id'], 'integer'],
+            [['imagen_id'], 'integer'],
             [['pregunta'], 'string', 'max' => 255],
             [['imagen_id'], 'exist', 'skipOnError' => true, 'targetClass' => Imagenes::className(), 'targetAttribute' => ['imagen_id' => 'id']],
-            [['test_id'], 'exist', 'skipOnError' => true, 'targetClass' => Tests::className(), 'targetAttribute' => ['test_id' => 'id']],
         ];
     }
 
@@ -50,7 +48,6 @@ class Preguntas extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'pregunta' => 'Pregunta',
-            'test_id' => 'Test ID',
             'imagen_id' => 'Imagen ID',
         ];
     }
@@ -86,16 +83,6 @@ class Preguntas extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Test]].
-     *
-     * @return \yii\db\ActiveQuery
-     */
-    public function getTest()
-    {
-        return $this->hasOne(Tests::className(), ['id' => 'test_id']);
-    }
-
-    /**
      * Gets query for [[Respuestas]].
      *
      * @return \yii\db\ActiveQuery
@@ -103,5 +90,25 @@ class Preguntas extends \yii\db\ActiveRecord
     public function getRespuestas()
     {
         return $this->hasMany(Respuestas::className(), ['pregunta_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Testspreguntas]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTestspreguntas()
+    {
+        return $this->hasMany(Testspreguntas::className(), ['pregunta_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Tests]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTests()
+    {
+        return $this->hasMany(Tests::className(), ['id' => 'test_id'])->viaTable('testspreguntas', ['pregunta_id' => 'id']);
     }
 }

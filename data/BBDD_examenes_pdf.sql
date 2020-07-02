@@ -13,7 +13,6 @@ USE examenes_pdf;
 CREATE TABLE preguntas (
   id              INT PRIMARY KEY AUTO_INCREMENT,
   pregunta        VARCHAR(255) DEFAULT NULL,
-  test_id         INT NOT NULL,
   imagen_id       INT DEFAULT NULL
 )
 ENGINE = INNODB,
@@ -76,11 +75,16 @@ ENGINE = INNODB,
 CHARACTER SET utf8,
 COLLATE utf8_unicode_ci;
 
+CREATE TABLE testspreguntas (
+  id              INT PRIMARY KEY AUTO_INCREMENT,
+  test_id         INT NOT NULL,
+  pregunta_id     INT NOT NULL
+)
+ENGINE = INNODB,
+CHARACTER SET utf8,
+COLLATE utf8_unicode_ci;
 
 ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_imagen (imagen_id) REFERENCES imagenes(id)
-  ON DELETE CASCADE ON UPDATE CASCADE;
-
-ALTER TABLE preguntas ADD FOREIGN KEY fk_preguntas_test (test_id) REFERENCES tests(id)
   ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE respuestas ADD FOREIGN KEY fk_respuestas_pregunta (pregunta_id) REFERENCES preguntas(id)
@@ -103,6 +107,15 @@ ALTER TABLE categoriastest ADD FOREIGN KEY fk_categoriastest_categoria (categori
 
 ALTER TABLE categoriastest ADD CONSTRAINT pk_categoriastest_test_categoria
   UNIQUE KEY (test_id, categoria_id);
+
+ALTER TABLE testspreguntas ADD FOREIGN KEY fk_testspreguntas_test (test_id) REFERENCES tests(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE testspreguntas ADD FOREIGN KEY fk_testspreguntas_pregunta (pregunta_id) REFERENCES preguntas(id)
+  ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE testspreguntas ADD CONSTRAINT pk_testspreguntas_test_pregunta
+  UNIQUE KEY (test_id, pregunta_id);
 
 --FIN
 
