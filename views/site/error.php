@@ -18,10 +18,10 @@ $this->title = $name;
     </div>
 
     <p>
-        The above error occurred while the Web server was processing your request.
+        El error de arriba ocurrió mientras el servidor Web estaba procesando su solicitud.
     </p>
     <p>
-        Please contact us if you think this is a server error. Thank you.
+        Por favor, contáctenos si cree que es un error del servidor. Gracias.
     </p>
 
 </div>

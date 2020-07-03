@@ -79,6 +79,7 @@ class SiteController extends Controller
 
         try {
           Yii::$app->session->setFlash('enviadoImportar');
+          $respuestaCorrecta = false;
 
           // Crear Test
           $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
@@ -146,6 +147,7 @@ class SiteController extends Controller
 
               // Crear preguntas
               if (ctype_digit($line[0])) {
+                $respuestaCorrecta = false;
                 $modelPreguntas = new \app\models\Preguntas();
                 $pregunta = substr($line, strpos($line, " ") + 1);
 
@@ -174,7 +176,8 @@ class SiteController extends Controller
                   $pregunta = substr($pregunta, 0, strpos($pregunta, "\n") - 1);
                 }
 
-                $modelPreguntas->pregunta = utf8_encode($pregunta);
+                $preguntaActual = utf8_encode(trim($line));
+                $modelPreguntas->pregunta = utf8_encode(trim($pregunta));
 
                 if (!$modelPreguntas->insert()) {
                   $transaction->rollBack();
@@ -239,10 +242,22 @@ class SiteController extends Controller
                 $modelRespuestas = new \app\models\Respuestas();
                 $modelRespuestas->pregunta_id = $pregunta_id;
                 $respuesta = substr($line, strpos($line, " ") + 1);
-                $modelRespuestas->respuesta = utf8_encode(substr($respuesta, 0, strpos($respuesta, "\n") - 1));
+                $respuesta = substr($respuesta, 0, strpos($respuesta, "\n") - 1);
+                $respuesta = trim($respuesta);
+                $modelRespuestas->respuesta = utf8_encode($respuesta);
 
                 $modelRespuestas->correcta = 0;
                 if (strpos(strtolower($respuesta), "xxx") !== false) {
+
+                  if ($respuestaCorrecta) {
+                    $transaction->rollBack();
+                    return $this->render('error', [
+                        'name' => 'ERROR al insertar en Respuestas',
+                        'message' => 'Ya existe otra respuesta correcta en la pregunta: ' . $preguntaActual,
+                    ]);
+                  }
+
+                  $respuestaCorrecta = true;
                   $modelRespuestas->correcta = 1;
                   $modelRespuestas->respuesta = utf8_encode(substr(strtolower($respuesta), 0,
                                                             strpos(strtolower($respuesta), " xxx")));
