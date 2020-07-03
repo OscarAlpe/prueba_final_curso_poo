@@ -109,7 +109,6 @@ $this->title = $t->titulo;
             }
             if($numero+1>=count($p)){
                 echo '<td>' . ($numero+2) . ':</td><td> - </td>';
-                $numero++;
             }else{
                 echo '<td>' . ($numero+2) . ':</td><td>' .  $correcta . "</td>";
             }
@@ -124,7 +123,6 @@ $this->title = $t->titulo;
             }
             if($numero+2>=count($p)){
                 echo '<td>' . ($numero+3) . ':</td><td> - </td></tr>';
-                $numero++;
             }else{
                 echo '<td>' . ($numero+3) . ':</td><td>' .  $correcta . "</td></tr>";
             }
