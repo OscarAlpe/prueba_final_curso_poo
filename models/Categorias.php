@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "categorias".
  *
  * @property int $id
- * @property string|null $categoria
+ * @property string $categoria
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
  * @property Preguntas[] $preguntas
@@ -31,6 +31,7 @@ class Categorias extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['categoria'], 'required'],
             [['categoria'], 'string', 'max' => 255],
             [['categoria'], 'unique'],
         ];

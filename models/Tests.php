@@ -8,11 +8,11 @@ use Yii;
  * This is the model class for table "tests".
  *
  * @property int $id
- * @property string|null $descripcion
- * @property string|null $materia
- * @property string|null $fecha
- * @property string|null $titulo
- * @property string|null $titulo_impreso
+ * @property string $descripcion
+ * @property string $materia
+ * @property string $fecha
+ * @property string $titulo
+ * @property string $titulo_impreso
  *
  * @property Categoriastest[] $categoriastests
  * @property Categorias[] $categorias
@@ -44,17 +44,16 @@ class Tests extends \yii\db\ActiveRecord
 
         if (Yii::$app->controller->action->id == "importar") {
           $f = [['fichero'], 'file', 'skipOnEmpty' => false];
-          $required = [['descripcion', 'materia'], 'required'];
+          $required = [['descripcion', 'materia', 'fecha', 'titulo', 'titulo_impreso'], 'required'];
         } else {
           $f = [['fichero'], 'file', 'skipOnEmpty' => true];
-          $required = [['descripcion', 'materia', 'npreguntas'], 'required'];
+          $required = [['descripcion', 'materia', 'fecha', 'titulo', 'titulo_impreso', 'npreguntas'], 'required'];
         }
 
         return [
+            $required,
             [['fecha'], 'safe'],
             $f,
-            $required,
-            [['npreguntas'], 'number'],
             [['descripcion', 'materia', 'titulo', 'titulo_impreso'], 'string', 'max' => 255],
         ];
     }

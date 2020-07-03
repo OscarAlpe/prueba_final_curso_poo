@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "preguntas".
  *
  * @property int $id
- * @property string|null $pregunta
+ * @property string $pregunta
  * @property int|null $imagen_id
  *
  * @property Categoriaspregunta[] $categoriaspreguntas
@@ -34,8 +34,10 @@ class Preguntas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['pregunta'], 'required'],
             [['imagen_id'], 'integer'],
             [['pregunta'], 'string', 'max' => 255],
+            [['pregunta'], 'unique'],
             [['imagen_id'], 'exist', 'skipOnError' => true, 'targetClass' => Imagenes::className(), 'targetAttribute' => ['imagen_id' => 'id']],
         ];
     }

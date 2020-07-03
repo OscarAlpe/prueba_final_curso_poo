@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $pregunta_id
- * @property string|null $respuesta
+ * @property string $respuesta
  * @property int|null $correcta
  *
  * @property Preguntas $pregunta
@@ -30,7 +30,7 @@ class Respuestas extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['pregunta_id'], 'required'],
+            [['pregunta_id', 'respuesta'], 'required'],
             [['pregunta_id', 'correcta'], 'integer'],
             [['respuesta'], 'string', 'max' => 255],
             [['pregunta_id'], 'exist', 'skipOnError' => true, 'targetClass' => Preguntas::className(), 'targetAttribute' => ['pregunta_id' => 'id']],

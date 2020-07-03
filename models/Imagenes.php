@@ -8,7 +8,7 @@ use Yii;
  * This is the model class for table "imagenes".
  *
  * @property int $id
- * @property string|null $nombre
+ * @property string $nombre
  *
  * @property Preguntas[] $preguntas
  */
@@ -28,6 +28,7 @@ class Imagenes extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['nombre'], 'required'],
             [['nombre'], 'string', 'max' => 255],
         ];
     }

@@ -80,6 +80,7 @@ class SiteController extends Controller
         try {
           Yii::$app->session->setFlash('enviadoImportar');
           $respuestaCorrecta = false;
+          $preguntaExiste = false;
 
           // Crear Test
           $modelTests->fecha = \Yii::$app->formatter->asDatetime("now", "php:Y-m-d H:i:s");
@@ -177,51 +178,67 @@ class SiteController extends Controller
                 }
 
                 $preguntaActual = utf8_encode(trim($line));
-                $modelPreguntas->pregunta = utf8_encode(trim($pregunta));
+                $pregunta = utf8_encode(trim($pregunta));
 
-                if (!$modelPreguntas->insert()) {
-                  $transaction->rollBack();
-                  return $this->render('error', [
-                      'name' => 'ERROR al insertar Preguntas',
-                      'message' => json_encode($modelPreguntas->getErrors(), JSON_UNESCAPED_UNICODE)
-                  ]);
-                }
+                // Busca la pregunta en la tabla preguntas.
+                $dataMP = \app\models\Preguntas::find()
+                  ->select("id")
+                  ->where(['=', 'pregunta', $pregunta])
+                  ->one();
 
-                $pregunta_id = Yii::$app->db->getLastInsertID();
+                // Si la encuentra coge el id e ignora las categorías y respuestas,
+                // si no la encuentra inserta una nueva pregunta en preguntas.
+                if ($dataMP !== NULL) {
+                  $pregunta_id = $dataMP->id;
+                  $preguntaExiste = true;
+                } else {
+                  $preguntaExiste = false;
+                  $modelPreguntas->pregunta = $pregunta;
 
-                // Crear categorías
-                if (isset($categorias)) {
-                  $arrCategorias = explode(",", $categorias);
+                  if (!$modelPreguntas->insert()) {
+                    $transaction->rollBack();
+                    return $this->render('error', [
+                        'name' => 'ERROR al insertar Preguntas',
+                        'message' => json_encode($modelPreguntas->getErrors(), JSON_UNESCAPED_UNICODE)
+                    ]);
+                  }
 
-                  foreach ($arrCategorias as $c) {
-                    $selectCategorias = \app\models\Categorias::find()->
-                      where(['=', 'categoria', utf8_encode($c)])->one();
-                    if (!$selectCategorias) {
-                      $modelCategorias = new \app\models\Categorias();
-                      $modelCategorias->categoria = utf8_encode($c);
+                  $pregunta_id = Yii::$app->db->getLastInsertID();
 
-                      if (!$modelCategorias->insert()) {
-                        return $this->render('error', [
-                            'name' => 'ERROR al insertar Categorias',
-                            'message' => json_encode($modelCategorias->getErrors(), JSON_UNESCAPED_UNICODE)
-                        ]);
+                  // Crear categorías
+                  if (isset($categorias)) {
+                    $arrCategorias = explode(",", $categorias);
+
+                    foreach ($arrCategorias as $c) {
+                      $selectCategorias = \app\models\Categorias::find()->
+                        where(['=', 'categoria', utf8_encode($c)])->one();
+                      if (!$selectCategorias) {
+                        $modelCategorias = new \app\models\Categorias();
+                        $modelCategorias->categoria = utf8_encode($c);
+
+                        if (!$modelCategorias->insert()) {
+                          return $this->render('error', [
+                              'name' => 'ERROR al insertar Categorias',
+                              'message' => json_encode($modelCategorias->getErrors(), JSON_UNESCAPED_UNICODE)
+                          ]);
+                        }
+
+                        $categoria_id = Yii::$app->db->getLastInsertID();
+                      } else {
+                        $categoria_id = $selectCategorias['id'];
                       }
 
-                      $categoria_id = Yii::$app->db->getLastInsertID();
-                    } else {
-                      $categoria_id = $selectCategorias['id'];
-                    }
+                      $modelCategoriaspregunta = new \app\models\Categoriaspregunta();
+                      $modelCategoriaspregunta->categoria_id = $categoria_id;
+                      $modelCategoriaspregunta->pregunta_id = $pregunta_id;
 
-                    $modelCategoriaspregunta = new \app\models\Categoriaspregunta();
-                    $modelCategoriaspregunta->categoria_id = $categoria_id;
-                    $modelCategoriaspregunta->pregunta_id = $pregunta_id;
-
-                    if (!$modelCategoriaspregunta->insert()) {
-                      $transaction->rollBack();
-                      return $this->render('error', [
-                          'name' => 'ERROR al insertar Categoriaspregunta',
-                          'message' => json_encode($modelCategoriaspregunta->getErrors(), JSON_UNESCAPED_UNICODE)
-                      ]);
+                      if (!$modelCategoriaspregunta->insert()) {
+                        $transaction->rollBack();
+                        return $this->render('error', [
+                            'name' => 'ERROR al insertar Categoriaspregunta',
+                            'message' => json_encode($modelCategoriaspregunta->getErrors(), JSON_UNESCAPED_UNICODE)
+                        ]);
+                      }
                     }
                   }
                 }
@@ -239,36 +256,38 @@ class SiteController extends Controller
                 }
               // Crear respuestas
               } else if (ctype_alpha($line[0])) {
-                $modelRespuestas = new \app\models\Respuestas();
-                $modelRespuestas->pregunta_id = $pregunta_id;
-                $respuesta = substr($line, strpos($line, " ") + 1);
-                $respuesta = substr($respuesta, 0, strpos($respuesta, "\n") - 1);
-                $respuesta = trim($respuesta);
-                $modelRespuestas->respuesta = utf8_encode($respuesta);
+                if (!$preguntaExiste) {
+                  $modelRespuestas = new \app\models\Respuestas();
+                  $modelRespuestas->pregunta_id = $pregunta_id;
+                  $respuesta = substr($line, strpos($line, " ") + 1);
+                  $respuesta = substr($respuesta, 0, strpos($respuesta, "\n") - 1);
+                  $respuesta = trim($respuesta);
+                  $modelRespuestas->respuesta = utf8_encode($respuesta);
 
-                $modelRespuestas->correcta = 0;
-                if (strpos(strtolower($respuesta), "xxx") !== false) {
+                  $modelRespuestas->correcta = 0;
+                  if (strpos(strtolower($respuesta), "xxx") !== false) {
 
-                  if ($respuestaCorrecta) {
-                    $transaction->rollBack();
-                    return $this->render('error', [
-                        'name' => 'ERROR al insertar en Respuestas',
-                        'message' => 'Ya existe otra respuesta correcta en la pregunta: ' . $preguntaActual,
-                    ]);
+                    if ($respuestaCorrecta) {
+                      $transaction->rollBack();
+                      return $this->render('error', [
+                          'name' => 'ERROR al insertar en Respuestas',
+                          'message' => 'Ya existe otra respuesta correcta en la pregunta: ' . $preguntaActual,
+                      ]);
+                    }
+
+                    $respuestaCorrecta = true;
+                    $modelRespuestas->correcta = 1;
+                    $modelRespuestas->respuesta = utf8_encode(substr(strtolower($respuesta), 0,
+                                                              strpos(strtolower($respuesta), " xxx")));
                   }
 
-                  $respuestaCorrecta = true;
-                  $modelRespuestas->correcta = 1;
-                  $modelRespuestas->respuesta = utf8_encode(substr(strtolower($respuesta), 0,
-                                                            strpos(strtolower($respuesta), " xxx")));
-                }
-
-                if (!$modelRespuestas->insert()) {
-                  $transaction->rollBack();
-                  return $this->render('error', [
-                      'name' => 'ERROR al insertar Respuestas',
-                      'message' => json_encode($modelRespuestas->getErrors(), JSON_UNESCAPED_UNICODE)
-                  ]);
+                  if (!$modelRespuestas->insert()) {
+                    $transaction->rollBack();
+                    return $this->render('error', [
+                        'name' => 'ERROR al insertar Respuestas',
+                        'message' => json_encode($modelRespuestas->getErrors(), JSON_UNESCAPED_UNICODE)
+                    ]);
+                  }
                 }
               }
             }
