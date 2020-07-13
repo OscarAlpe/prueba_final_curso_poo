@@ -435,26 +435,22 @@ class SiteController extends Controller
               ]);
             }
 
-            $numeroPreguntasGrabadas = 0;
-
+            $preguntas = $formData["Tests"]["preguntas"];
             // Inserta las preguntas
-            foreach ($formData["Tests"]["preguntas"] as $v) {
+            for ($i=0; $i < $formData["Tests"]["npreguntas"]; $i++) {
+              $r = random_int(0, sizeof($preguntas) - 1);
+              $v = $preguntas[$r];
               $modelTestsPreguntas = new \app\models\Testspreguntas();
               $modelTestsPreguntas->test_id = $test_id;
               $modelTestsPreguntas->pregunta_id = $v;
+              \array_splice($preguntas, $r, 1);
 
               if (!$modelTestsPreguntas->insert()) {
                 $transaction->rollBack();
                 return $this->render('error', [
                     'name' => 'ERROR al insertar Testspreguntas',
-                    'message' => json_encode($modelPreguntasNew->getErrors(), JSON_UNESCAPED_UNICODE)
+                    'message' => json_encode($modelTestsPreguntas->getErrors(), JSON_UNESCAPED_UNICODE)
                 ]);
-              }
-
-              $numeroPreguntasGrabadas++;
-
-              if ($numeroPreguntasGrabadas >= $formData["Tests"]["npreguntas"]) {
-                break;
               }
             }
 
