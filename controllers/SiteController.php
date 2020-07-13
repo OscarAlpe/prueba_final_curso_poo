@@ -117,7 +117,7 @@ class SiteController extends Controller
                     where(['=', 'categoria', utf8_encode($cTest)])->one();
                   if (!$selectCategoriasTest) {
                     $modelCategoriasT = new \app\models\Categorias();
-                    $modelCategoriasT->categoria = utf8_encode($cTest);
+                    $modelCategoriasT->categoria = utf8_encode(trim($cTest));
 
                     if (!$modelCategoriasT->insert()) {
                       $transaction->rollBack();
@@ -214,7 +214,7 @@ class SiteController extends Controller
                         where(['=', 'categoria', utf8_encode($c)])->one();
                       if (!$selectCategorias) {
                         $modelCategorias = new \app\models\Categorias();
-                        $modelCategorias->categoria = utf8_encode($c);
+                        $modelCategorias->categoria = utf8_encode(trim($c));
 
                         if (!$modelCategorias->insert()) {
                           return $this->render('error', [
@@ -262,7 +262,7 @@ class SiteController extends Controller
                   $respuesta = substr($line, strpos($line, " ") + 1);
                   $respuesta = substr($respuesta, 0, strpos($respuesta, "\n") - 1);
                   $respuesta = trim($respuesta);
-                  $modelRespuestas->respuesta = utf8_encode($respuesta);
+                  $modelRespuestas->respuesta = utf8_encode(trim($respuesta));
 
                   $modelRespuestas->correcta = 0;
                   if (strpos(strtolower($respuesta), "xxx") !== false) {
@@ -277,8 +277,8 @@ class SiteController extends Controller
 
                     $respuestaCorrecta = true;
                     $modelRespuestas->correcta = 1;
-                    $modelRespuestas->respuesta = utf8_encode(substr(strtolower($respuesta), 0,
-                                                              strpos(strtolower($respuesta), " xxx")));
+                    $modelRespuestas->respuesta = utf8_encode(trim(substr($respuesta, 0,
+                                                              strpos(strtolower($respuesta), " xxx"))));
                   }
 
                   if (!$modelRespuestas->insert()) {
