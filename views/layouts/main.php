@@ -60,7 +60,7 @@ AppAsset::register($this);
     <div class="container">
         <p class="pull-left">&copy; Oscar Megía López 2020</p>
 
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <p class="pull-right"></p>
     </div>
 </footer>
 
